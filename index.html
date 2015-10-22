@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Movie Store by ShalaMedia</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Movie Store</h1>
+        <h2>My midterm pair programming project in C#.</h2>
+        <a href="https://github.com/ShalaMedia/BootcampCode" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h3>
+<a id="movie-store-midterm-class-customer" class="anchor" href="#movie-store-midterm-class-customer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Movie Store Midterm Class Customer</h3>
+
+<pre><code>namespace MidtermProject
+ {
+    class Customer
+      {
+    // Add fields we agreed upon. Will be displayed in master copy.
+    public string custName;
+    public string phoneNum;
+    public string movieSelection;
+    public DateTime checkOut;
+
+
+    // Add properties we agreed upon. Will be displayed in master copy.
+    public string CustName
+    {
+        get
+        {
+            return this.custName;
+        }
+        set
+        {
+            this.custName = value;
+        }
+    }
+
+    public string PhoneNum
+    {
+        get
+        {
+            // Doro added this formatting option. This will help catch input that is not convertable to numbers.
+            string num = "";
+            Regex rgx = new Regex(@"\(?\s?(\d{3})\s?-?\s?\)?\s?(\d{3})\s?-?\s?(\d{4})");
+            //Console.WriteLine(rgx.IsMatch(phoneNum));
+            int counter = 1;
+            MatchCollection matches = rgx.Matches(phoneNum);
+            if (rgx.IsMatch(phoneNum))
+            {
+                foreach (Match match in matches)
+                {
+                    foreach (Group grp in match.Groups)
+                    {
+                        num += match.Groups[counter];
+                        counter++;
+                    }
+
+                }
+                string number = String.Format("{0:(###) ###-####}", ulong.Parse(num));
+                return number;
+            }
+            else
+            {
+                throw new Exception(string.Format("Invalid number"));
+            }
+        // this method will try parse the number. If it is true, it will print it. Else throw exception
+            /*ulong num = 0;  
+            bool parsed = UInt64.TryParse(phoneNum, out num);
+            if(parsed == true)
+            { 
+            string number = String.Format("{0:(###)###-####}", num);
+            return number;*/
+        }
+        set
+        {
+            this.phoneNum = value;
+        }
+    }
+
+    public string MovieSelection
+    {
+        get
+        {
+            return this.movieSelection;
+        }
+        set
+        {
+            this.movieSelection = value;
+        }
+    }
+
+    public DateTime CheckOut
+    {
+        get
+        {
+            return this.checkOut;
+        }
+        set
+        {
+            this.checkOut = value;
+        }
+    }
+
+    // Possible Customer Constructor.
+    public Customer(string custname, string phonenumber, string movie, DateTime checkoutDate)
+    {
+        this.CustName = custname;
+        this.PhoneNum = phonenumber;
+        this.MovieSelection = movie;
+        this.CheckOut = checkoutDate;
+    }
+
+    // We will add our methods into our BRANCH copies of master.
+    public void CustInfo(StringBuilder builder)      // Shalamar's printing method. Doro added the try-catch blocks.
+    {
+        // Using builder so we can write to file
+        builder.AppendLine();
+        builder.Append(CustName);
+        builder.AppendLine();
+        try
+        {                               // try method will print the phone number with format (###)###-#### 
+                                        // so long as the string of phoneNum are convertable numbers (to ulong).
+            builder.Append(PhoneNum);
+        }
+        catch (Exception pn)
+        {                               // Will print an error on the screen if the inputed phoneNum does not contain
+                                        // all convertable numbers. (ex: (216)526-asdf is incorrect. Cannot convert asdf to numbers
+            builder.Append("Error: " + pn.Message);
+        }
+        builder.AppendLine();
+        builder.Append(MovieSelection);
+        builder.AppendLine();
+        builder.Append("Movie checked out: " + CheckOut);
+        builder.AppendLine();
+    }
+
+    public void NoMovieRented(StringBuilder builder)
+    {
+        builder.AppendLine();
+        builder.Append(CustName);   // Using builder so we can write to file
+        builder.AppendLine();
+        try
+        {                               // try method will print the phone number with format (###)###-#### 
+            // so long as the string of phoneNum are convertable numbers (to ulong).
+            builder.Append(PhoneNum);
+        }
+        catch (Exception pn)
+        {                               // Will print an error on the screen if the inputed phoneNum does not contain
+            // all convertable numbers. (ex: (216)526-asdf is incorrect. Cannot convert asdf to numbers
+            builder.Append("Error: " + pn.Message);
+        }
+        builder.AppendLine();
+        builder.Append("No movies checked out.");
+        builder.AppendLine();
+    }
+
+    public void MovieSelectionMethod(List&lt;string&gt; movies, string movieSelection)
+    {
+        int selector = movies.FindIndex(index =&gt; index.Equals(movieSelection, StringComparison.CurrentCultureIgnoreCase));
+        // will grab the movie that matches the input and place it in the movieSelector string. This is so
+        // that the movie can be removed from the list based on how the movie is written in the list, not how it was inputed.
+        string movieSelector = movies[selector];
+        MovieSelection = movieSelector; // takes the correct format the movies is written in from the list and assigns it to property MovieSelection so that it prints correctly in customer info
+        movies.Remove(movieSelector);
+    }
+    public DateTime ReturnDate(DateTime checkoutDate)       // method to figure out return date from checkout date
+    {
+        DateTime returnDate = checkoutDate.AddDays(7);
+        return returnDate;
+    }
+
+    public int DaysLate(DateTime returnDate)        // method to figure out how late the movie is (in relation to today
+                                                    // and it's return date.
+    {
+        DateTime today = DateTime.Now;
+        TimeSpan amountOfDays = today.Subtract(returnDate);
+        return Convert.ToInt32(amountOfDays.TotalDays);
+    }
+
+    public void PrintLate(StringBuilder builder, DateTime returnDate)  // Shalamar's method
+    {
+
+        int daysLate = DaysLate(returnDate);
+        double lateFee = daysLate * 1.50;
+        builder.Append("You are " + daysLate + " days late!");// Using builder so we can write to file
+        builder.AppendLine();       
+        builder.Append("Please pay " + "$" + lateFee + " before you rent another movie!");
+        builder.AppendLine();
+    }
+
+    public bool IsLate(DateTime checkedOut, DateTime returnDate)       // Doro's method
+    {
+        DateTime today = DateTime.Now;
+        if (today &gt; returnDate)
+            return true;
+        else
+        {
+            return false;
+        }
+    }
+}
+</code></pre>
+
+<h3>
+<a id="movie-store-program" class="anchor" href="#movie-store-program" aria-hidden="true"><span class="octicon octicon-link"></span></a>Movie Store Program</h3>
+
+<pre><code> using System;
+ using System.IO;
+ using System.Collections.Generic;
+ using System.Linq;
+ using System.Text;
+ using System.Threading.Tasks;
+
+ namespace MidtermProject
+ {
+   class Program
+   {
+      static void Main(string[] args)
+    {
+        // We will add our main programs into our individual BRANCH copies of master.
+
+        //this is part of Dorothy's branch off the master copy:
+        // practice customers (hard-coded)
+        Customer customer1 = new Customer("Doro Hunt", "21652686561234", "CoraLiNe", new DateTime(2015, 09, 25));
+        Customer customer2 = new Customer("Shalamar Brown", "3305429078", "avengers", new DateTime(2015, 10, 3));
+        Customer customer3 = new Customer("Orlando Cruz", "2164215714", "Kill bill", new DateTime(2015, 10, 8));
+        Customer customer4 = new Customer("Johnny Smith", "440651asdf", "Halloweentown", new DateTime(2015, 10, 10));
+        Customer customer5 = new Customer("Jenny Johnson", "4407597850", "Bridesmaids", new DateTime(2015, 10, 12));
+
+        // user input for our 5th customer
+        Console.WriteLine("Please enter your first and last name: ");
+        string custName = Console.ReadLine();
+        Console.WriteLine("Please enter your phone number: ");
+        string phoneNum = Console.ReadLine();
+        Console.WriteLine("Which movie would you like to check out?");
+        string movieOption = Console.ReadLine();
+        Customer customer6 = new Customer(custName, phoneNum, movieOption, DateTime.Now);
+
+        // Created customerList so we can do following code to each individual customer
+        List&lt;Customer&gt; customerList = new List&lt;Customer&gt;(); 
+        customerList.Add(customer1);
+        customerList.Add(customer2);
+        customerList.Add(customer3);
+        customerList.Add(customer4);
+        customerList.Add(customer5);
+        customerList.Add(customer6);
+
+        // builder created to hold multiple strings
+        StringBuilder builder = new StringBuilder();
+        // writer created to write builder info into a txt file for customer summary
+        StreamWriter writer = new StreamWriter("..\\..\\OverDueAccounts.txt");
+
+        // list of movies
+        List&lt;string&gt; movies = new List&lt;string&gt;() {"Avengers", "Pitch Perfect 2", "Cinderella", "Kill Bill", "The Matrix", 
+        "Big Hero 6", "SpongeBob", "Identity Theft", "Coraline", "Bridesmaids"};
+
+        // prints out the list of movies
+        Console.WriteLine("List of movies:");
+        foreach (string item in movies)
+        {
+            Console.WriteLine(item);
+        }
+        Console.WriteLine("\n");
+
+        // foreach loop will go through the customer list and execute the following code for individual customers in list
+        foreach (Customer obj in customerList)
+        {
+            string movieSelection = obj.MovieSelection; // grabs the input movie selection for customer and assigns it to variable we can use in loop
+            // Doro added this to help with ignoring of case
+            if (movies.Contains(movieSelection, StringComparer.CurrentCultureIgnoreCase))       //checks to see if movie selection is in movies (ignoring case)
+            {
+                // calls a method that will find the movie in the list by the inputed info (ignoring case) and removing it from movie list
+                obj.MovieSelectionMethod(movies, movieSelection);
+                DateTime checkOutDate = obj.CheckOut;     // created this DateTime object to hold the checkout date 
+                                                          // from customers in list so that I can call the ReturnDay method.
+                DateTime returnDay = obj.ReturnDate(checkOutDate);    // Will return the return date and place it in
+                                                                      // DateTime object called returnDay
+                //obj.CustInfo(builder);  // will call a method that will add the current customer's info to builder
+                //builder.Append("Return date: " + customer1.ReturnDate(checkOutDate));
+                //builder.AppendLine();
+
+                if (obj.IsLate(checkOutDate, returnDay) == true)    // calls a method that will check if customer is late
+                {
+                    // this will help us print only the late accounts to the text file.
+                    obj.CustInfo(builder);
+                    builder.Append("Return date: " + customer1.ReturnDate(checkOutDate));
+                    builder.AppendLine();
+                    obj.PrintLate(builder, returnDay);  // if customer is late, add to builder their overdue info (days late and how much they owe)
+                }
+                else
+                {
+                    // if customer is not late do this else block
+                    //builder.Append("Customer has no overdue information.");
+                    //builder.AppendLine();
+                    Console.WriteLine(obj.custName + " has no overdue information" + "\n");
+                }
+
+            }
+
+            else
+            {   // if the movie is not in the movies list do this else block
+                Console.WriteLine("Sorry " + obj.custName);
+                Console.WriteLine("We don't have " + movieSelection + "\n");     // If we don't have the movie
+                //obj.NoMovieRented(builder);      // Prints the NoMovieRented method that only prints custname and phone# + a message
+                //builder.AppendLine();
+                Console.WriteLine("\n");
+            }
+        }
+
+        Console.WriteLine("List of movies: ");
+        foreach (string item in movies)
+        {
+            Console.WriteLine(item);
+        }
+
+        using (writer)
+        {
+            writer.WriteLine(builder);
+        }
+        Console.ReadLine();
+    }
+}
+</code></pre>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/ShalaMedia/BootcampCode/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/ShalaMedia/BootcampCode/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/ShalaMedia/BootcampCode"></a> is maintained by <a href="https://github.com/ShalaMedia">ShalaMedia</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
